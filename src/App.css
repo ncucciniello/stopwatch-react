@@ -1,0 +1,168 @@
+@font-face {
+  font-family: "SF Pro Light";
+  src: url("./assets/SF-Pro-Text-Light.otf") format("opentype");
+}
+
+@font-face {
+  font-family: "SF Pro Ultralight";
+  src: url("./assets/SF-Pro-Text-Ultralight.otf") format("opentype");
+}
+
+:root {
+  --lap-rest-button-text-color: rgb(254, 254, 254);
+  --lap-reset-button-color: rgb(51, 51, 51);
+  --lap-reset-button-color-hover: rgba(51, 51, 51, .7);
+  --lap-reset-button-color-active: rgba(51, 51, 51, .3);
+  
+  --start-button-text-color: rgb(105, 207, 105);
+  --start-button-color: rgb(19, 41, 20);
+  --start-button-color-hover: rgba(19, 41, 20, .7);
+  --start-button-color-active: rgba(19, 41, 20, .3);
+  
+  --stop-button-text-color: rgb(230, 84, 68);
+  --stop-button-color: rgb(47, 16, 13);
+  --stop-button-color-hover: rgba(47, 16, 13, .7);
+  --stop-button-color-active: rgba(47, 16, 13, .3);
+
+  --longest-lap-color: rgb(230, 84, 68);
+  --shortest-lap-color: rgb(103, 203, 101);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Roboto', sans-serif;
+}
+
+main {
+  width: 366px;
+  height: 792px;
+  margin: 80px auto;
+  background-color: #010000;
+}
+
+.time {
+  width: 100%;
+  font-size: 85px;
+  font-weight: 100;
+  color: rgb(253, 253, 253);
+  margin-top: 170px;
+  text-align: center;
+  display: inline-block;
+}
+
+.controls {
+  margin-top: 95px;
+}
+
+button {
+  width: 75px;
+  height: 75px;
+  font-size: 16px;
+  line-height: 71px;
+  border-radius: 50%;
+  text-align: center;
+  border: 2px solid black;
+}
+
+button:disabled {
+  color: rgb(154,153,160);
+  background-color: rgb(28,28,30);
+  box-shadow:  0 0 0 2px rgb(28,28,30);
+}
+
+button:disabled:hover {
+  background-color: rgb(28,28,30);
+  box-shadow:  0 0 0 2px rgb(28,28,30);
+}
+
+button:disabled:active {
+  background-color: rgb(28,28,30);
+  box-shadow:  0 0 0 2px rgb(28,28,30);
+}
+
+.lap-reset-button {
+  margin-left: 17px;
+  color: var(--lap-rest-button-text-color);
+  background-color: var(--lap-reset-button-color);
+  box-shadow:  0 0 0 2px var(--lap-reset-button-color);
+}
+
+.lap-reset-button:hover {
+  background-color: var(--lap-reset-button-color-hover);
+  box-shadow:  0 0 0 2px var(--lap-reset-button-color-hover);
+}
+
+.lap-reset-button:active {
+  background-color: var(--lap-reset-button-color-active);
+  box-shadow:  0 0 0 2px var(--lap-reset-button-color-active);
+}
+
+.start-stop-button {
+  float: right;
+  margin-right: 17px;
+}
+
+.start {
+  color: var(--start-button-text-color);
+  background-color: var(--start-button-color);
+  box-shadow:  0 0 0 2px var(--start-button-color);
+}
+
+.start:hover {
+  background-color: var(--start-button-color-hover);
+  box-shadow:  0 0 0 2px var(--start-button-color-hover);
+}
+
+.start:active {
+  background-color: var(--start-button-color-active);
+  box-shadow:  0 0 0 2px var(--start-button-color-active);
+}
+
+.stop {
+  color: var(--stop-button-text-color);
+  background-color: var(--stop-button-color);
+  box-shadow:  0 0 0 2px var(--stop-button-color);
+}
+
+.stop:hover {
+  background-color: var(--stop-button-color-hover);
+  box-shadow:  0 0 0 2px var(--stop-button-color-hover);
+}
+
+.stop:active {
+  background-color: var(--stop-button-color-active);
+  box-shadow:  0 0 0 2px var(--stop-button-color-active);
+}
+
+.lap-list-container {
+  height: 250px;
+  overflow: auto;
+  margin-top: 17px;
+}
+
+.lap-list {
+  width: 93%;
+  margin: 0 auto;
+  list-style: none;
+  color: rgb(253, 253, 253);
+}
+
+.lap-list li {
+  height: 41px;
+  line-height: 40px;
+  border-top: 1px solid rgb(25, 25, 25);
+}
+
+li span {
+  float: right;
+}
+
+.shortest-lap {
+  color: var(--shortest-lap-color);
+}
+
+.longest-lap {
+  color: var(--longest-lap-color);
+}
