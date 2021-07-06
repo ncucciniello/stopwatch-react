@@ -1,6 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import './App.css'
 
+
+const initialState = {
+
+}
+
+
 function App() {
   const [isRunning, setIsRunning] = useState(false)
   const [isNewSession, setIsNewSession] = useState(true)
@@ -15,6 +21,43 @@ function App() {
   const RESET_TEXT = 'Reset'
   const LAP_TEXT = 'Lap'
 
+  
+  const handleStartStopButton = () => {
+    getTimeStamp()
+    isRunning ? stopStopwatch() : startStopwatch()
+  }  
+
+  const handleLapResetButton = () => {
+    if (isRunning) {
+      console.log('lap pressed')
+    } else {
+      console.log('reset pressed')
+      resetTimer()
+    }
+  }
+
+  const getTimeStamp = () => isRunning ? setStopTime(Date.now()) : setStartTime(Date.now())
+  
+  const startStopwatch = () => {
+    setIsRunning(true)
+    setIsNewSession(false)
+  }
+
+  const stopStopwatch = () => {
+    setIsRunning(false)
+    setCurrentDuration(timeElapsed)
+  }
+  
+  const runTimer = () => setTimeElapsed((Date.now() - startTime) + currentDuration)
+
+  const resetTimer = () => {
+      setIsNewSession(true)
+      setStartTime(0)
+      setStopTime(0)
+      setTimeElapsed(0)
+      setCurrentDuration(0)
+  }
+
   const formatTime = (timeInMilli) => {
     const totalSeconds = timeInMilli / 1000
     const [minutes, seconds, centiseconds] = [
@@ -25,46 +68,33 @@ function App() {
 
     return `${minutes}:${seconds}.${centiseconds}`
   }
-
-  const getTimeStamp = () => {
-    isRunning ? setStopTime(Date.now()) : setStartTime(Date.now())
-  }
-
-  const runTimer = () => {
-    setTimeElapsed((Date.now() - startTime) + currentDuration)
-  }
-
-  const startStopwatch = () => {
-    setIsRunning(true)
-  }
-
-  const stopStopwatch = () => {
-    setIsRunning(false)
-    setCurrentDuration(timeElapsed)
-  }
-
-  const handleStartStopButton = () => {
-    getTimeStamp()
-    isRunning ? stopStopwatch() : startStopwatch()
-  }
-
+  
   useEffect(() => {
-    let interval
+    let intervalID
     if(isRunning) {
-        console.log('start time', startTime)
-        interval = setInterval(() => {runTimer()}, 1000 / 60)
+        intervalID = setInterval(() => { runTimer() }, 1000 / 60)
     }
-    return () => clearInterval(interval)
+    return () => clearInterval(intervalID)
   }, [isRunning])
+
+
+
 
   return (
     <div>
       <main>
 
+        {/* <Display /> */}
         <div className="time">{formatTime(timeElapsed)}</div>
 
         <div className="controls">
-          <button className="lap-reset-button" disabled>Lap</button>
+          <button 
+            className="lap-reset-button" 
+            onClick={() => handleLapResetButton()} 
+            disabled={isNewSession}
+          >
+            {isRunning || isNewSession ? LAP_TEXT : RESET_TEXT}
+          </button>
           <button 
             className={"start-stop-button " + (isRunning ? "stop" : "start")} 
             onClick={() => handleStartStopButton()} 
