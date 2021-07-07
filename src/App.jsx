@@ -1,42 +1,39 @@
 import React, { useEffect, useState } from 'react'
 import './App.css'
 
-
-const initialState = {
-
-}
-
-
 function App() {
   const [isRunning, setIsRunning] = useState(false)
   const [isNewSession, setIsNewSession] = useState(true)
 
   const [startTime, setStartTime] = useState(0)
-  const [stopTime, setStopTime] = useState(0)
-  const [timeElapsed, setTimeElapsed] = useState(0)
-  const [currentDuration, setCurrentDuration] = useState(0)
+  const [totalTimeElapsed, setTotalTimeElapsed] = useState(0)
+  const [timeBeforePause, setTimeBeforePause] = useState(0)
+
+  const [laps, setLaps] = useState([])
+  const [numOfLaps, setNumOfLaps] = useState(1)
+  const [currentLapDuration, setCurrrentLapDuration] = useState(0)
+  const [totalLapDuration, setTotalLapDuration] = useState(0)
+  // const [longestLap, setLongestLap] = useState(0)
+  // const [shortestLap, setShortestLap] = useState(9999999)
 
   const START_TEXT = 'Start'
   const STOP_TEXT = 'Stop'
   const RESET_TEXT = 'Reset'
   const LAP_TEXT = 'Lap'
 
-  
   const handleStartStopButton = () => {
-    getTimeStamp()
+    setStartTime(Date.now())
     isRunning ? stopStopwatch() : startStopwatch()
   }  
 
   const handleLapResetButton = () => {
     if (isRunning) {
-      console.log('lap pressed')
+      addLap()
     } else {
-      console.log('reset pressed')
       resetTimer()
+      resetLaps()
     }
   }
-
-  const getTimeStamp = () => isRunning ? setStopTime(Date.now()) : setStartTime(Date.now())
   
   const startStopwatch = () => {
     setIsRunning(true)
@@ -45,17 +42,34 @@ function App() {
 
   const stopStopwatch = () => {
     setIsRunning(false)
-    setCurrentDuration(timeElapsed)
+    setTimeBeforePause(totalTimeElapsed)
   }
   
-  const runTimer = () => setTimeElapsed((Date.now() - startTime) + currentDuration)
+  const runTimer = () => setTotalTimeElapsed((Date.now() - startTime) + timeBeforePause)
 
   const resetTimer = () => {
-      setIsNewSession(true)
-      setStartTime(0)
-      setStopTime(0)
-      setTimeElapsed(0)
-      setCurrentDuration(0)
+    setIsNewSession(true)
+    setStartTime(0)
+    setTotalTimeElapsed(0)
+    setTimeBeforePause(0)
+  }
+  
+  const runLap = () => setCurrrentLapDuration(totalTimeElapsed - totalLapDuration)
+    
+  const addLap = () => {
+    setTotalLapDuration(totalLapDuration => totalLapDuration + currentLapDuration)
+
+    const newLaps = [{'lapNum': numOfLaps, 'lapTime': currentLapDuration}, ...laps]
+
+    setLaps(newLaps)
+    setNumOfLaps(numOfLaps => numOfLaps + 1)
+  }
+
+  const resetLaps = () => {
+    setLaps([])
+    setNumOfLaps(1)
+    setCurrrentLapDuration(0)
+    setTotalLapDuration(0)
   }
 
   const formatTime = (timeInMilli) => {
@@ -71,21 +85,23 @@ function App() {
   
   useEffect(() => {
     let intervalID
-    if(isRunning) {
-        intervalID = setInterval(() => { runTimer() }, 1000 / 60)
+    if (isRunning) {
+        intervalID = setInterval(() => { 
+          runTimer()
+        }, 1000 / 60)
     }
     return () => clearInterval(intervalID)
   }, [isRunning])
 
-
+  useEffect(() => {
+      runLap()
+  }, [totalTimeElapsed])
 
 
   return (
     <div>
       <main>
-
-        {/* <Display /> */}
-        <div className="time">{formatTime(timeElapsed)}</div>
+        <div className="time">{formatTime(totalTimeElapsed)}</div>
 
         <div className="controls">
           <button 
@@ -105,12 +121,9 @@ function App() {
 
         <div className="lap-list-container">
           <ul className="lap-list">
-            <li></li>
-            <li></li>
-            <li></li>
-            <li></li>
-            <li></li>
-            <li></li>
+            {laps.map((lap, index) => { 
+              return <li key={index}>Lap {lap.lapNum}<span>{formatTime(lap.lapTime)}</span></li> 
+            })}
           </ul>
         </div>
 
