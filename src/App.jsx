@@ -1,20 +1,27 @@
 import React, { useEffect, useState } from 'react'
 import './App.css'
 
-function App() {
-  const [isRunning, setIsRunning] = useState(false)
-  const [isNewSession, setIsNewSession] = useState(true)
+const formatTime = (timeInMilli) => {
+  const totalSeconds = timeInMilli / 1000
+  const [minutes, seconds, centiseconds] = [
+    totalSeconds / 60,
+    totalSeconds % 60,
+    (timeInMilli % 1000) / 10
+  ].map((num) => Math.floor(num).toString(10).padStart(2, '0'))
 
+  return `${minutes}:${seconds}.${centiseconds}`
+}
+
+
+function App() {
   const [startTime, setStartTime] = useState(0)
-  const [totalTimeElapsed, setTotalTimeElapsed] = useState(0)
+  const [timeElapsed, setTimeElapsed] = useState(0)
   const [timeBeforePause, setTimeBeforePause] = useState(0)
 
   const [laps, setLaps] = useState([])
   const [numOfLaps, setNumOfLaps] = useState(1)
   const [currentLapDuration, setCurrrentLapDuration] = useState(0)
   const [totalLapDuration, setTotalLapDuration] = useState(0)
-  // const [longestLap, setLongestLap] = useState(0)
-  // const [shortestLap, setShortestLap] = useState(9999999)
 
   const START_TEXT = 'Start'
   const STOP_TEXT = 'Stop'
@@ -22,12 +29,11 @@ function App() {
   const LAP_TEXT = 'Lap'
 
   const handleStartStopButton = () => {
-    setStartTime(Date.now())
-    isRunning ? stopStopwatch() : startStopwatch()
+    startTime ? stopStopwatch() : startStopwatch()
   }  
 
   const handleLapResetButton = () => {
-    if (isRunning) {
+    if (startTime) {
       addLap()
     } else {
       resetTimer()
@@ -36,32 +42,31 @@ function App() {
   }
   
   const startStopwatch = () => {
-    setIsRunning(true)
-    setIsNewSession(false)
+    setStartTime(Date.now())
   }
 
   const stopStopwatch = () => {
-    setIsRunning(false)
-    setTimeBeforePause(totalTimeElapsed)
+    setStartTime(0)
+    setTimeBeforePause(timeElapsed)
   }
-  
-  const runTimer = () => setTotalTimeElapsed((Date.now() - startTime) + timeBeforePause)
+
+  const runTimer = () => setTimeElapsed((Date.now() - startTime) + timeBeforePause)
 
   const resetTimer = () => {
-    setIsNewSession(true)
-    setStartTime(0)
-    setTotalTimeElapsed(0)
+    setTimeElapsed(0)
     setTimeBeforePause(0)
   }
   
-  const runLap = () => setCurrrentLapDuration(totalTimeElapsed - totalLapDuration)
+  const runLap = () => setCurrrentLapDuration(timeElapsed - totalLapDuration)
     
   const addLap = () => {
+    let lapStatus = ''
+
     setTotalLapDuration(totalLapDuration => totalLapDuration + currentLapDuration)
 
-    const newLaps = [{'lapNum': numOfLaps, 'lapTime': currentLapDuration}, ...laps]
-
+    const newLaps = [{'lapNum': numOfLaps, 'lapTime': currentLapDuration, 'lapStatus': lapStatus}, ...laps]
     setLaps(newLaps)
+
     setNumOfLaps(numOfLaps => numOfLaps + 1)
   }
 
@@ -71,58 +76,46 @@ function App() {
     setCurrrentLapDuration(0)
     setTotalLapDuration(0)
   }
-
-  const formatTime = (timeInMilli) => {
-    const totalSeconds = timeInMilli / 1000
-    const [minutes, seconds, centiseconds] = [
-      totalSeconds / 60,
-      totalSeconds % 60,
-      (timeInMilli % 1000) / 10
-    ].map((num) => Math.floor(num).toString(10).padStart(2, '0'))
-
-    return `${minutes}:${seconds}.${centiseconds}`
-  }
   
   useEffect(() => {
     let intervalID
-    if (isRunning) {
+    if (startTime) {
         intervalID = setInterval(() => { 
           runTimer()
         }, 1000 / 60)
     }
     return () => clearInterval(intervalID)
-  }, [isRunning])
+  }, [startTime])
 
   useEffect(() => {
-      runLap()
-  }, [totalTimeElapsed])
-
+    runLap()
+  }, [timeElapsed])
 
   return (
     <div>
       <main>
-        <div className="time">{formatTime(totalTimeElapsed)}</div>
+        <div className="time">{formatTime(timeElapsed)}</div>
 
         <div className="controls">
           <button 
             className="lap-reset-button" 
-            onClick={() => handleLapResetButton()} 
-            disabled={isNewSession}
+            onClick={handleLapResetButton} 
+            disabled={!timeElapsed}
           >
-            {isRunning || isNewSession ? LAP_TEXT : RESET_TEXT}
+            {startTime || !timeElapsed ? LAP_TEXT : RESET_TEXT}
           </button>
           <button 
-            className={"start-stop-button " + (isRunning ? "stop" : "start")} 
-            onClick={() => handleStartStopButton()} 
+            className={"start-stop-button " + (startTime ? "stop" : "start")} 
+            onClick={handleStartStopButton} 
           >
-            {isRunning ? STOP_TEXT : START_TEXT}
+            {startTime ? STOP_TEXT : START_TEXT}
           </button>
         </div>
 
         <div className="lap-list-container">
           <ul className="lap-list">
-            {laps.map((lap, index) => { 
-              return <li key={index}>Lap {lap.lapNum}<span>{formatTime(lap.lapTime)}</span></li> 
+            {laps.map((lap) => { 
+              return <li key={lap.lapNum}>Lap {lap.lapNum} <span>{formatTime(lap.lapTime)}</span></li> 
             })}
           </ul>
         </div>
