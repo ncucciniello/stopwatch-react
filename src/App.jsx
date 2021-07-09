@@ -18,97 +18,123 @@ function App() {
 
   const [laps, setLaps] = useState([])
   const [totalLapDuration, setTotalLapDuration] = useState(0)
+  const [shortestLap, setShortestLap] = useState({ lapNum: 0, lapTime: Number.MAX_VALUE })
+  const [longestLap, setLongestLap] = useState({ lapNum: 0, lapTime: 0 })
 
-  const START_TEXT = 'Start'
-  const STOP_TEXT = 'Stop'
-  const RESET_TEXT = 'Reset'
-  const LAP_TEXT = 'Lap'
-
-  const handleStartStopButton = () => {
-    startTime ? setStartTime(0) : startStopwatch()
-  }  
-
-  const handleLapResetButton = () => {
-    startTime ? addLap() : resetStopWatch()
-  }
-
-  const startStopwatch = () => {
-    !timeElapsed && addLap()
+  useEffect(() => {
+    if (startTime) {
+      const intervalID = setInterval(runTimer, 1000 / 60)
+      return () => clearInterval(intervalID)
+    }
+  }, [startTime])
   
+  useEffect(() => {
+    if (timeElapsed) {
+      runLap()
+    }
+  }, [timeElapsed])
+  
+  const startStopwatch = () => {
+    if (!timeElapsed) {
+      addLap()
+    }
+    
     setStartTime(Date.now())
   }
   
   const runTimer = () => setTimeElapsed(timeElapsed + (Date.now() - startTime))
-
+  
   const runLap = () => {
     const newLapsArray = [...laps]
     const currentLap = newLapsArray[0]
-
+    
     currentLap.lapTime = timeElapsed - totalLapDuration
-
+    
     setLaps(newLapsArray)
   }
-
+  
   const addLap = () => {
-    let lapStatus = ''
+    const newLaps = [{ lapNum: (laps.length + 1), lapTime: 0 }, ...laps]
     
-    const newLaps = [{'lapNum': (laps.length + 1), 'lapTime': 0, 'lapStatus': ''}, ...laps]
-    
+    if (laps.length > 0) {
+      newLaps[1].lapTime > longestLap.lapTime && setLongestLap({lapNum: newLaps[1].lapNum, lapTime: newLaps[1].lapTime})
+      newLaps[1].lapTime < shortestLap.lapTime && setShortestLap({lapNum: newLaps[1].lapNum, lapTime: newLaps[1].lapTime})
+    }
+
     setTotalLapDuration(timeElapsed)
     setLaps(newLaps)
   }
-
+  
   const resetStopWatch = () => {
     setTimeElapsed(0)
     setLaps([])
     setTotalLapDuration(0)
   }
   
-  useEffect(() => {
-    let intervalID
-    if (startTime) {
-        intervalID = setInterval(() => { 
-          runTimer()
-        }, 1000 / 60)
-    }
-    return () => clearInterval(intervalID)
-  }, [startTime])
+  const displayLapLines = () => {
+    const lapsToDisplay = 5 - laps.length
+    let emptyLaps = []
 
-  useEffect(() => {
-    timeElapsed && runLap()
-  }, [timeElapsed])
+    for (let i = 0; i <= lapsToDisplay; i++) {
+      emptyLaps.push('')
+    } 
+
+    return emptyLaps
+  }
+  
+  const handleStartStopButton = () => {startTime ? setStartTime(0) : startStopwatch()}
+  const handleLapResetButton = startTime ? addLap : resetStopWatch
+  
+  const lapResetButtonText = (startTime || !timeElapsed) ? 'Lap' : 'Reset'
+  const startStopButtonText = startTime ? 'Stop' : 'Start'
+  const startStopButtonClassName = startTime ? "stop" : "start"
+  
 
   return (
-    <div>
+    <>
       <main>
-        <div className="time">{formatTime(timeElapsed)}</div>
+        <h1 className="time">{formatTime(timeElapsed)}</h1>
 
         <div className="controls">
-          <button 
-            className="lap-reset-button" 
-            onClick={handleLapResetButton} 
+          <button
+            className="lap-reset-button"
+            onClick={handleLapResetButton}
             disabled={!timeElapsed}
           >
-            {startTime || !timeElapsed ? LAP_TEXT : RESET_TEXT}
+            {lapResetButtonText}
           </button>
-          <button 
-            className={"start-stop-button " + (startTime ? "stop" : "start")} 
-            onClick={handleStartStopButton} 
+          <button
+            className={"start-stop-button " + startStopButtonClassName}
+            onClick={handleStartStopButton}
           >
-            {startTime ? STOP_TEXT : START_TEXT}
+            {startStopButtonText}
           </button>
         </div>
 
         <div className="lap-list-container">
           <ul className="lap-list">
-            {laps.map((lap) => { 
-              return <li key={lap.lapNum} className={lap.lapStatus}>Lap {lap.lapNum} <span>{formatTime(lap.lapTime)}</span></li> 
+            {laps.map((lap) => {
+              return (
+                <li
+                  key={lap.lapNum}
+                  className={
+                    laps.length > 2 ?
+                    lap.lapNum === longestLap.lapNum ? 'longest' : 
+                    lap.lapNum === shortestLap.lapNum ? 'shortest' :
+                    '' : ''
+                  }
+                >
+                  Lap {lap.lapNum} <span>{formatTime(lap.lapTime)}</span>
+                </li>
+              )
+            })}
+            {displayLapLines().map((item, index) => {
+              return <li key={index + 6}></li>
             })}
           </ul>
         </div>
-
       </main>
-    </div>
+    </>
   )
 }
 
