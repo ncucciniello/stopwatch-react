@@ -12,15 +12,11 @@ const formatTime = (timeInMilli) => {
   return `${minutes}:${seconds}.${centiseconds}`
 }
 
-
 function App() {
   const [startTime, setStartTime] = useState(0)
   const [timeElapsed, setTimeElapsed] = useState(0)
-  const [timeBeforePause, setTimeBeforePause] = useState(0)
 
   const [laps, setLaps] = useState([])
-  const [numOfLaps, setNumOfLaps] = useState(1)
-  const [currentLapDuration, setCurrrentLapDuration] = useState(0)
   const [totalLapDuration, setTotalLapDuration] = useState(0)
 
   const START_TEXT = 'Start'
@@ -29,51 +25,42 @@ function App() {
   const LAP_TEXT = 'Lap'
 
   const handleStartStopButton = () => {
-    startTime ? stopStopwatch() : startStopwatch()
+    startTime ? setStartTime(0) : startStopwatch()
   }  
 
   const handleLapResetButton = () => {
-    if (startTime) {
-      addLap()
-    } else {
-      resetTimer()
-      resetLaps()
-    }
+    startTime ? addLap() : resetStopWatch()
   }
-  
+
   const startStopwatch = () => {
+    !timeElapsed && addLap()
+  
     setStartTime(Date.now())
   }
-
-  const stopStopwatch = () => {
-    setStartTime(0)
-    setTimeBeforePause(timeElapsed)
-  }
-
-  const runTimer = () => setTimeElapsed((Date.now() - startTime) + timeBeforePause)
-
-  const resetTimer = () => {
-    setTimeElapsed(0)
-    setTimeBeforePause(0)
-  }
   
-  const runLap = () => setCurrrentLapDuration(timeElapsed - totalLapDuration)
-    
+  const runTimer = () => setTimeElapsed(timeElapsed + (Date.now() - startTime))
+
+  const runLap = () => {
+    const newLapsArray = [...laps]
+    const currentLap = newLapsArray[0]
+
+    currentLap.lapTime = timeElapsed - totalLapDuration
+
+    setLaps(newLapsArray)
+  }
+
   const addLap = () => {
     let lapStatus = ''
-
-    setTotalLapDuration(totalLapDuration => totalLapDuration + currentLapDuration)
-
-    const newLaps = [{'lapNum': numOfLaps, 'lapTime': currentLapDuration, 'lapStatus': lapStatus}, ...laps]
+    
+    const newLaps = [{'lapNum': (laps.length + 1), 'lapTime': 0, 'lapStatus': ''}, ...laps]
+    
+    setTotalLapDuration(timeElapsed)
     setLaps(newLaps)
-
-    setNumOfLaps(numOfLaps => numOfLaps + 1)
   }
 
-  const resetLaps = () => {
+  const resetStopWatch = () => {
+    setTimeElapsed(0)
     setLaps([])
-    setNumOfLaps(1)
-    setCurrrentLapDuration(0)
     setTotalLapDuration(0)
   }
   
@@ -88,7 +75,7 @@ function App() {
   }, [startTime])
 
   useEffect(() => {
-    runLap()
+    timeElapsed && runLap()
   }, [timeElapsed])
 
   return (
@@ -115,7 +102,7 @@ function App() {
         <div className="lap-list-container">
           <ul className="lap-list">
             {laps.map((lap) => { 
-              return <li key={lap.lapNum}>Lap {lap.lapNum} <span>{formatTime(lap.lapTime)}</span></li> 
+              return <li key={lap.lapNum} className={lap.lapStatus}>Lap {lap.lapNum} <span>{formatTime(lap.lapTime)}</span></li> 
             })}
           </ul>
         </div>

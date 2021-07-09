@@ -13,6 +13,7 @@
   --lap-reset-button-color: rgb(51, 51, 51);
   --lap-reset-button-color-hover: rgba(51, 51, 51, .7);
   --lap-reset-button-color-active: rgba(51, 51, 51, .3);
+  --lap-reset-button-color-disabled: rgb(28,28,30);
   
   --start-button-text-color: rgb(105, 207, 105);
   --start-button-color: rgb(19, 41, 20);
@@ -68,18 +69,18 @@ button {
 
 button:disabled {
   color: rgb(154,153,160);
-  background-color: rgb(28,28,30);
-  box-shadow:  0 0 0 2px rgb(28,28,30);
+  background-color: var(--lap-reset-button-color-disabled);
+  box-shadow:  0 0 0 2px var(--lap-reset-button-color-disabled);
 }
 
 button:disabled:hover {
-  background-color: rgb(28,28,30);
-  box-shadow:  0 0 0 2px rgb(28,28,30);
+  background-color: var(--lap-reset-button-color-disabled);
+  box-shadow:  0 0 0 2px var(--lap-reset-button-color-disabled);
 }
 
 button:disabled:active {
-  background-color: rgb(28,28,30);
-  box-shadow:  0 0 0 2px rgb(28,28,30);
+  background-color: var(--lap-reset-button-color-disabled);
+  box-shadow:  0 0 0 2px var(--lap-reset-button-color-disabled);
 }
 
 .lap-reset-button {
@@ -159,10 +160,10 @@ li span {
   float: right;
 }
 
-.shortest-lap {
+.shortest {
   color: var(--shortest-lap-color);
 }
 
-.longest-lap {
+.longest {
   color: var(--longest-lap-color);
 }
