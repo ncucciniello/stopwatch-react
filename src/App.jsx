@@ -45,14 +45,17 @@ const displayEmptyLaps = (lapsArray) => {
   return emptyLaps
 }
 
-function App() {
+const initalLongestLap = {lapNum: 0, lapTime: 0}
+const initalShortestLap = {lapNum: 0, lapTime: Number.MAX_VALUE}
+
+const App = () => {
   const [startTime, setStartTime] = useState(0)
   const [timeElapsed, setTimeElapsed] = useState(0)
 
   const [laps, setLaps] = useState([])
   const [totalLapDuration, setTotalLapDuration] = useState(0)
-  const [longestLap, setLongestLap] = useState({ lapNum: 0, lapTime: 0 })
-  const [shortestLap, setShortestLap] = useState({ lapNum: 0, lapTime: Number.MAX_VALUE })
+  const [longestLap, setLongestLap] = useState(initalLongestLap)
+  const [shortestLap, setShortestLap] = useState(initalShortestLap)
 
   useEffect(() => {
     if (startTime) {
@@ -78,12 +81,10 @@ function App() {
   const runTimer = () => setTimeElapsed(timeElapsed + (Date.now() - startTime))
 
   const runLap = () => {
-    const newLapsArray = [...laps]
-    const currentLap = newLapsArray[0]
+    const newLaps = [...laps]
+    newLaps[0].lapTime = timeElapsed - totalLapDuration
 
-    currentLap.lapTime = timeElapsed - totalLapDuration
-
-    setLaps(newLapsArray)
+    setLaps(newLaps)
   }
 
   const addLap = () => {
@@ -106,8 +107,8 @@ function App() {
     setTimeElapsed(0)
     setLaps([])
     setTotalLapDuration(0)
-    setLongestLap({ lapNum: 0, lapTime: 0 })
-    setShortestLap({ lapNum: 0, lapTime: Number.MAX_VALUE })
+    setLongestLap(initalLongestLap)
+    setShortestLap(initalShortestLap)
   }
   
   const handleLapsDisplay = () => { 
