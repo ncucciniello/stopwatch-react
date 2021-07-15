@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react'
+import formatTime  from './utils/formatTime'
 import './App.css'
 
-import formatTime  from './utils/formatTime'
-
-const initalLongestLap = {lapNum: 0, lapTime: 0}
-const initalShortestLap = {lapNum: 0, lapTime: Number.MAX_VALUE}
+const initalLapRecordsState = {
+  longestLap: {lapNum: 0, lapTime: 0},
+  shortestLap: {lapNum: 0, lapTime: Number.MAX_VALUE}
+}
 
 const App = () => {
   const [startTime, setStartTime] = useState(0)
@@ -12,8 +13,7 @@ const App = () => {
 
   const [laps, setLaps] = useState([])
   const [totalLapDuration, setTotalLapDuration] = useState(0)
-  const [longestLap, setLongestLap] = useState(initalLongestLap)
-  const [shortestLap, setShortestLap] = useState(initalShortestLap)
+  const [lapRecords, setLapRecords] = useState(initalLapRecordsState)
 
   useEffect(() => {
     if (startTime) {
@@ -51,11 +51,11 @@ const App = () => {
     const newLaps = [{ lapNum: (laps.length + 1), lapTime: 0,  }, ...laps]
 
     if (laps.length > 0) {
-      if (newLaps[1].lapTime > longestLap.lapTime) {
-        setLongestLap({ lapNum: newLaps[1].lapNum, lapTime: newLaps[1].lapTime })
+      if (newLaps[1].lapTime > lapRecords.longestLap.lapTime) {
+        setLapRecords({...lapRecords, longestLap: { lapNum: newLaps[1].lapNum, lapTime: newLaps[1].lapTime }})
       }
-      if (newLaps[1].lapTime < shortestLap.lapTime) {
-        setShortestLap({ lapNum: newLaps[1].lapNum, lapTime: newLaps[1].lapTime })
+      if (newLaps[1].lapTime < lapRecords.shortestLap.lapTime) {
+        setLapRecords({...lapRecords, shortestLap: { lapNum: newLaps[1].lapNum, lapTime: newLaps[1].lapTime }})
       }
     }
 
@@ -67,8 +67,7 @@ const App = () => {
     setTimeElapsed(0)
     setLaps([])
     setTotalLapDuration(0)
-    setLongestLap(initalLongestLap)
-    setShortestLap(initalShortestLap)
+    setLapRecords(initalLapRecordsState)
   }
   
   const displayLaps = (lapsArray) => lapsArray.map((lap) => (
@@ -81,11 +80,11 @@ const App = () => {
   ))
   
   const handleLapClass = (currentLap) => {
-    if (currentLap.lapNum === longestLap.lapNum) {
+    if (currentLap.lapNum === lapRecords.longestLap.lapNum) {
       return 'longest'
     } 
     
-    if (currentLap.lapNum === shortestLap.lapNum) {
+    if (currentLap.lapNum === lapRecords.shortestLap.lapNum) {
       return 'shortest'
     } 
     
